@@ -1,0 +1,3 @@
+{
+  "connectionString": "User ID=postgres;Password=mydb;Host=localhost;Port=5432;Database=vocab_db;"
+}
