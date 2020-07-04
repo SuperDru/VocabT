@@ -67,11 +67,12 @@ namespace VocabT
         public async Task UpdateWords(List<Word> words)
         {
             using var db = Con;
+            db.Open();
             using var tx = db.BeginTransaction(IsolationLevel.Snapshot);
 
             foreach (var word in words)
             {
-                await tx.Connection.ExecuteAsync(Sql.UpdateWord, new {word});
+                await db.ExecuteAsync(Sql.UpdateWord, new DynamicParameters(word));
             }
 
             tx.Commit();

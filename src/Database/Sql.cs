@@ -15,7 +15,7 @@ namespace VocabT
 
         public const string UpdateWord = @"UPDATE words SET
                                                     rus=@Rus,
-                                                    count=@Count
+                                                    count=@Count,
                                                     mistakesCount=@MistakesCount,
                                                     seq=@Seq,
                                                     score=@Score,

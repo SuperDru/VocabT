@@ -21,7 +21,7 @@
             </Ellipse.Fill>
         </Ellipse>
         <Ellipse x:Name="LearningBtn" HorizontalAlignment="Left" Height="52" Margin="30,0,0,0" Stroke="Black" VerticalAlignment="Top" Width="52"
-                 Visibility="Visible" MouseEnter="btn_MouseEnter" MouseLeave="btn_MouseLeave"
+                 Visibility="Hidden" MouseEnter="btn_MouseEnter" MouseLeave="btn_MouseLeave"
                  MouseDown="btn_MouseDown" MouseLeftButtonUp="btnStudy_MouseLeftButtonUp">
             <Ellipse.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">

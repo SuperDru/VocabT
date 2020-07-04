@@ -13,7 +13,7 @@ namespace VocabT
     {
         private static readonly Random Rand = new Random();
 
-        private const double LearningProcessProbability = 0.8;
+        private const double LearningProcessProbability = 1;
 
         private readonly Options _options;
         private readonly SoundPlayer _pingSound;
@@ -112,7 +112,7 @@ namespace VocabT
             var processWindow = new LearningProcessWindow();
             processWindow.Show();
 
-            var result = processWindow.StartProcessing(words);
+            var result = await processWindow.StartProcessing(words);
             await _wordsService.ProcessResult(result);
 
             await WaitForNextIteration();

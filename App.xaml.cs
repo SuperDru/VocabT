@@ -48,9 +48,11 @@ namespace VocabT
             {
                 case "New Word":
                     _newWordWindow.Show();
+                    _newWordWindow.Focus();
                     break;
                 case "Words and Options":
                     _mainWindow.Show();
+                    _mainWindow.Focus();
                     break;
                 case "Exit":
                     Current.Shutdown();

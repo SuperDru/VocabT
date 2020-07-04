@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VocabT"
         mc:Ignorable="d"
-        Title="LearningProcessWindow" Height="124.49" Width="361.702" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="LearningProcessWindow" Height="124.49" Width="361.702" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="Manual">
     <Grid>
         <Canvas>
             <Rectangle Fill="#FF1B1B23" HorizontalAlignment="Left" Height="114" StrokeThickness="7" Stroke="Black" VerticalAlignment="Top" Width="352"

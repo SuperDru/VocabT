@@ -34,9 +34,12 @@ namespace VocabT
         {
             InitializeComponent();
             _defaultCorrectnessLblColor = CorrectnessLbl.Foreground;
+
+            Top = SystemParameters.WorkArea.Height - Height;
+            Left = SystemParameters.WorkArea.Width - Width;
         }
 
-        public Dictionary<Word, bool> StartProcessing(List<Word> words)
+        public async Task<Dictionary<Word, bool>> StartProcessing(List<Word> words)
         {
             var result = words.ToDictionary(x => x, x => false);
 
@@ -70,7 +73,10 @@ namespace VocabT
                 while (!_isAnswered)
                 {
                     // Wait for user to answer
-                    SpinWait.SpinUntil(() => _isAnswered, TimeSpan.FromMinutes(2));
+                    while (!_isAnswered)
+                    {
+                        await Task.Delay(10);
+                    }
 
                     if (_correctness == Correctness.Partly)
                     {
@@ -95,7 +101,10 @@ namespace VocabT
                 CheckWordBtn.Content = "Next";
 
                 // Wait for user to press NextBtn
-                SpinWait.SpinUntil(() => _isNext, TimeSpan.FromMinutes(2));
+                while (!_isNext)
+                {
+                    await Task.Delay(10);
+                }
             }
 
             return result;
