@@ -16,14 +16,14 @@ namespace VocabT
         public const string UpdateWord = @"UPDATE words SET
                                                     rus=@Rus,
                                                     count=@Count,
-                                                    mistakesCount=@MistakesCount,
+                                                    mistakes_count=@MistakesCount,
                                                     seq=@Seq,
                                                     score=@Score,
                                                     hint=@Hint,
                                                     status=@Status,
-                                                    updatedAt=@UpdatedAt
+                                                    updated_at=@UpdatedAt
                                            WHERE eng=@Eng";
 
-        public const string UpdatePositiveSeq = "UPDATE words SET seq=seq-1 WHERE eng NOT IN @words and seq>0";
+        public const string UpdatePositiveSeq = "UPDATE words SET seq=seq-1 WHERE eng != ALL(@Words) AND seq>0";
     }
 }

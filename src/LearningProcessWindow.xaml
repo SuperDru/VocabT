@@ -12,12 +12,18 @@
                        RadiusX="15" RadiusY="15" Canvas.Left="10" Canvas.Top="10"/>
             <TextBox x:Name="AnswerWordTextBox" Canvas.Left="28" TextWrapping="Wrap" Text="TextBox" Canvas.Top="54" Width="318"
                      FontSize="18" Background="#FF35405D" KeyUp="AnswerWordTextBox_KeyUp"/>
-            <Label x:Name="QuestionWordLbl" Content="Label" Canvas.Top="22" FontSize="18" Foreground="#FFA4ABDF" Canvas.Right="10"/>
+            <Label x:Name="QuestionWordLbl" Content="Label" Canvas.Top="25" FontSize="16" Foreground="#FFA4ABDF" Canvas.Right="10"/>
             <Button x:Name="CheckWordBtn" Template="{StaticResource btnTemplate}" Canvas.Left="28" Canvas.Top="85" Width="75" Height="25" 
                     FontSize="16" Background="#FF35405D" Content="Check" Click="CheckWordBtn_Click"/>
             <Button x:Name="OpenWebBtn" Template="{StaticResource btnTemplate}" Content="Open Web" Canvas.Left="28"
                     Height="25" Canvas.Top="24" Width="94" FontSize="16" Background="#FF35405D" Click="OpenWebBtn_Click"/>
-            <Label x:Name="CorrectnessLbl" Content="Label" Canvas.Top="77" FontSize="18" Canvas.Right="10" Foreground="#FFA4ABDF"/>
+            <ComboBox Name="comboBox" FontSize="16" VerticalContentAlignment="Top" Visibility="Hidden" Foreground="#FFA4ABDF" IsEditable="True" IsReadOnly="True" Style="{StaticResource LearningProcessingComboBox}" MinHeight="26" Width="142" Canvas.Left="204" Canvas.Top="85" DropDownOpened="comboBox_DropDownOpened">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Width="126" FontSize="16" TextAlignment="Right" Text="{Binding Translation}" Foreground="#FFA4ABDF" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
             <Popup x:Name="HintPopup" Placement="Top" PlacementTarget="{Binding ElementName=AnswerWordTextBox}" VerticalOffset="-3" MaxWidth="180"
                    AllowsTransparency="True">
                 <Border CornerRadius="5" BorderBrush="CadetBlue" BorderThickness="3">

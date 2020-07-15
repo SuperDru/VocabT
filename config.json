@@ -1,3 +1,11 @@
 {
-  "connectionString": "User ID=postgres;Password=mydb;Host=localhost;Port=5432;Database=vocab_db;"
+  "Database": {
+    "connectionString": "User ID=postgres;Password=mydb;Host=localhost;Port=5432;Database=vocabt_db;"
+  },
+  "Options": {
+    "toLearnCount": 5,
+    "toRepeatCount": 20,
+    "minMinutes": 10,
+    "maxMinutes": 30
+  } 
 }

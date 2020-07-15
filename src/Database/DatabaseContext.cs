@@ -4,6 +4,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Npgsql;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace VocabT
 {
@@ -15,7 +17,8 @@ namespace VocabT
         {
             get
             {
-                _instance ??= new DatabaseContext("Server=127.0.0.1;Port=5432;Database=vocab_db;User Id=postgres;Password=mydb;");
+                var databaseOptions = DatabaseOptions.Name.ToObject<DatabaseOptions>();
+                _instance ??= new DatabaseContext(databaseOptions.ConnectionString);
                 return _instance;
 
             }
@@ -81,7 +84,7 @@ namespace VocabT
         public async Task UpdateSeq(List<Word> excludeWords)
         {
             using var db = Con;
-            await db.ExecuteAsync(Sql.UpdatePositiveSeq, new {words = excludeWords.Select(x => x.Eng)});
+            await db.ExecuteAsync(Sql.UpdatePositiveSeq, new {Words = excludeWords.Select(x => x.Eng).ToArray()});
         }
     }
 }

@@ -13,8 +13,8 @@ namespace VocabT
     {
         public string Eng { get; set; }
         public string[] Rus { get; set; }
-        public int Count { get; set; }
-        public int MistakesCount { get; set; }
+        public short Count { get; set; }
+        public short MistakesCount { get; set; }
         /// <summary>
         /// Value that reflects count of consecutive correct and incorrect answers.
         /// Correct +1

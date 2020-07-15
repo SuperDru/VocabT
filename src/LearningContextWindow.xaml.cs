@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Media;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+#pragma warning disable 4014
 
 namespace VocabT
 {
@@ -13,17 +13,21 @@ namespace VocabT
     {
         private static readonly Random Rand = new Random();
 
-        private const double LearningProcessProbability = 1;
+        private const double LearningProcessProbability = 0.9;
+        private const double MinWordsCount = 5;
 
         private readonly Options _options;
         private readonly SoundPlayer _pingSound;
         private readonly WordsService _wordsService;
 
-        public LearningContextWindow(Options options)
+        private readonly Action<Word> _update;
+
+        public LearningContextWindow(Options options, Action<Word> update)
         {
             _options = options;
             _pingSound = new SoundPlayer("ping_sound.wav");
             _wordsService = new WordsService();
+            _update = update;
 
             InitializeComponent();
 
@@ -59,7 +63,25 @@ namespace VocabT
 
         private async Task NextIteration()
         {
+            var db = DatabaseContext.Instance;
+            var inProgressWords = await db.GetWordsWithStatus(LearningStatus.InProgress);
+            var repeatingWords = await db.GetWordsWithStatus(LearningStatus.Repeating);
+
+            var isLearningActive = inProgressWords.Count >= MinWordsCount;
+            var isRepeatingActive = repeatingWords.Count >= MinWordsCount;
+            if (!isLearningActive && !isRepeatingActive)
+            {
+                throw new Exception("Not enough words in the dictionary.");
+            }
+
             var isLearningProcess = Rand.NextDouble() <= LearningProcessProbability;
+
+            if (isLearningProcess && !isLearningActive || !isLearningProcess && !isRepeatingActive)
+            {
+                isLearningProcess = !isLearningProcess;
+            }
+
+            Show();
             if (isLearningProcess)
             {
                 LearningBtn.Visibility = Visibility.Visible;
@@ -77,6 +99,7 @@ namespace VocabT
             if (LearningBtn.Visibility != Visibility.Visible && RepeatingBtn.Visibility != Visibility.Visible)
                 return;
 
+            Hide();
             LearningBtn.Visibility = Visibility.Hidden;
             RepeatingBtn.Visibility = Visibility.Hidden;
 
@@ -102,6 +125,7 @@ namespace VocabT
         {
             var isLearningProcess = LearningBtn.Visibility == Visibility.Visible;
 
+            Hide();
             LearningBtn.Visibility = Visibility.Hidden;
             RepeatingBtn.Visibility = Visibility.Hidden;
 
@@ -115,8 +139,23 @@ namespace VocabT
             var result = await processWindow.StartProcessing(words);
             await _wordsService.ProcessResult(result);
 
+            foreach (var (word, _) in result)
+            {
+                _update(word);
+            }
+
+            processWindow.Close();
+
             await WaitForNextIteration();
             NextIteration();
+        }
+
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.RightCtrl)
+            {
+                btnStudy_MouseLeftButtonUp(null, null);
+            }
         }
     }
 }

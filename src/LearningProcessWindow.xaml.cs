@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -20,7 +22,7 @@ namespace VocabT
     {
         private static readonly Random rand = new Random();
 
-        private readonly Brush _defaultCorrectnessLblColor;
+        private Word _currentWord;
 
         private string _questionWord;
         private List<string> _answerWords = new List<string>();
@@ -30,13 +32,16 @@ namespace VocabT
         private bool _isAnswered;
         private bool _isNext;
 
+        private readonly ObservableCollection<ComboBoxListItem> _answerBoxListItems = new ObservableCollection<ComboBoxListItem>();
+
         public LearningProcessWindow()
         {
             InitializeComponent();
-            _defaultCorrectnessLblColor = CorrectnessLbl.Foreground;
 
             Top = SystemParameters.WorkArea.Height - Height;
             Left = SystemParameters.WorkArea.Width - Width;
+
+            comboBox.ItemsSource = _answerBoxListItems;
         }
 
         public async Task<Dictionary<Word, bool>> StartProcessing(List<Word> words)
@@ -48,24 +53,27 @@ namespace VocabT
 
             foreach (var word in words)
             {
+                _currentWord = word;
                 var hint = word.Hint;
 
                 _engToRus = rand.NextDouble() >= 0.5;
                 if (_engToRus)
                 {
                     _questionWord = word.Eng;
-                    _answerWords = new List<string>(word.Rus);
+                    _answerWords = new List<string>(word.Rus.UnifyInfinitive());
                 }
                 else
                 {
-                    _questionWord = word.Rus.OrderBy(x => Guid.NewGuid()).First();
+                    _questionWord = word.Rus.UnifyInfinitive().OrderBy(x => Guid.NewGuid()).First();
                     _answerWords = new List<string>(new []{word.Eng});
                 }
 
                 QuestionWordLbl.Content = _questionWord;
                 AnswerWordTextBox.Text = string.Empty;
-                CorrectnessLbl.Content = string.Empty;
-                CorrectnessLbl.Foreground = _defaultCorrectnessLblColor;
+                AnswerWordTextBox.Focus();
+                _answerBoxListItems.Clear();
+                DataContext = null;
+                comboBox.Visibility = Visibility.Hidden;
                 HintPopupTextBlock.Text = hint;
                 image.Visibility = hint.IsNullOrEmpty() ? Visibility.Hidden : Visibility.Visible;
                 _isAnswered = false;
@@ -78,23 +86,40 @@ namespace VocabT
                         await Task.Delay(10);
                     }
 
+                    comboBox.Visibility = Visibility.Visible;
+
                     if (_correctness == Correctness.Partly)
                     {
-                        CorrectnessLbl.Content = "It's correct word, but please, type another word";
-                        CorrectnessLbl.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 0));
+                        DataContext = new ComboBoxListItem
+                        {
+                            SelectedComboBox = "It's correct partly"
+                        };
+                        comboBox.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 0));
+                        AnswerWordTextBox.Text = "";
+                        _isAnswered = false;
                     }
                 }
 
                 _isNext = false;
-                CorrectnessLbl.Content = _answerWords.First();
+                DataContext = new ComboBoxListItem
+                {
+                    SelectedComboBox = _answerWords.First()
+                };
+                foreach (var w in _answerWords.Skip(1))
+                {
+                    _answerBoxListItems.Add(new ComboBoxListItem
+                    {
+                        Translation = w
+                    });
+                }
                 if (_correctness == Correctness.Correct)
                 {
-                    CorrectnessLbl.Foreground = new SolidColorBrush(Color.FromRgb(0, 255, 0));
+                    comboBox.Foreground = new SolidColorBrush(Color.FromRgb(0, 255, 0));
                     result[word] = true;
                 }
                 else if (_correctness == Correctness.Incorrect)
                 {
-                    CorrectnessLbl.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                    comboBox.Foreground = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                     result[word] = false;
                 }
 
@@ -122,7 +147,7 @@ namespace VocabT
             if (_answerWords.Count == 0)
                 return;
 
-            var answer = AnswerWordTextBox.Text;
+            var answer = AnswerWordTextBox.Text.UnifyInfinitive();
             _correctness = _answerWords.Contains(answer) ? Correctness.Correct : Correctness.Incorrect;
 
             if (!_engToRus && _correctness == Correctness.Incorrect)
@@ -139,14 +164,24 @@ namespace VocabT
 
         private void OpenWebBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            var psi = new ProcessStartInfo
+            {
+                FileName = $"https://www.vocabulary.com/dictionary/{_currentWord.Eng}",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
-
+        
         private void AnswerWordTextBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl)
             {
                 HintPopup.IsOpen = !HintPopup.IsOpen;
+            }
+
+            if (e.Key == Key.Enter)
+            {
+                CheckWordBtn_Click(null, null);
             }
         }
 
@@ -163,6 +198,14 @@ namespace VocabT
         private void image_MouseLeave(object sender, MouseEventArgs e)
         {
             image.Opacity = 0.7;
+        }
+
+        private void comboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            if (_answerWords.Count <= 1)
+            {
+                ((ComboBox) sender).IsDropDownOpen = false;
+            }
         }
     }
 }

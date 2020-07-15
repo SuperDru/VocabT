@@ -33,7 +33,7 @@ namespace VocabT
             var menuContext = new ContextMenuStrip();
 
             menuContext.Items.Add(new ToolStripMenuItem("New Word", null, OnTrayItemClick));
-            menuContext.Items.Add(new ToolStripMenuItem("Words and Options", null, OnTrayItemClick));
+            menuContext.Items.Add(new ToolStripMenuItem("Words", null, OnTrayItemClick));
             menuContext.Items.Add(new ToolStripMenuItem("Exit", null, OnTrayItemClick));
 
             _icon.ContextMenuStrip = menuContext;
@@ -50,7 +50,7 @@ namespace VocabT
                     _newWordWindow.Show();
                     _newWordWindow.Focus();
                     break;
-                case "Words and Options":
+                case "Words":
                     _mainWindow.Show();
                     _mainWindow.Focus();
                     break;
@@ -65,18 +65,12 @@ namespace VocabT
             _mainWindow.UpdateWord(word);
         }
 
-        private void OnStart(int toLearnCount, int toRepeatCount, int minMinutes, int maxMinutes)
+        private void OnStart()
         {
             _learningContextWindow?.Close();
 
-            var options = new Options
-            {
-                ToLearnCount = toLearnCount,
-                ToRepeatCount = toRepeatCount,
-                MinMinutes = minMinutes,
-                MaxMinutes = maxMinutes
-            };
-            _learningContextWindow = new LearningContextWindow(options);
+            var options = Options.Name.ToObject<Options>();
+            _learningContextWindow = new LearningContextWindow(options, OnUpdate);
             _learningContextWindow.Show();
         }
 

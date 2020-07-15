@@ -10,6 +10,8 @@ namespace VocabT
         private readonly DatabaseContext _db;
         private readonly Action<Word> _update;
 
+        private bool _isWarningOpened;
+
         public NewWordWindow(Action<Word> update)
         {
             _db = DatabaseContext.Instance;
@@ -17,7 +19,8 @@ namespace VocabT
 
             InitializeComponent();
 
-            originalWordTextBox.Focus();
+            Top = SystemParameters.WorkArea.Height - Height;
+            Left = SystemParameters.WorkArea.Width - Width;
         }
 
         private async void newWordBtn_Click(object sender, RoutedEventArgs e)
@@ -32,19 +35,19 @@ namespace VocabT
 
             if (await _db.GetWord(originalWord) != null)
             {
-                MessageBox.Show("An english word with that name already exists");
+                ShowWarning("An english word with that name already exists");
                 return;
             }
 
             var existingWordsWithTranslations = await _db.GetWordsWithTranslations(translationWords);
             if (existingWordsWithTranslations.Count > 0 && HintTextBox.Text.IsNullOrEmpty())
             {
-                MessageBox.Show("Please, type hint to avoid ambiguous cases with similar translations");
+                ShowWarning("Please, type hint to avoid ambiguous cases with similar translations");
                 ContentControl_MouseLeftButtonUp(null, null);
                 return;
             }
 
-            await _db.AddWord(originalWord, translationWords,HintTextBox.Text.IsNullOrEmpty() ? null : HintTextBox.Text);
+            await _db.AddWord(originalWord, translationWords.UnifyInfinitive(),HintTextBox.Text.IsNullOrEmpty() ? null : HintTextBox.Text);
 
             var word = await _db.GetWord(originalWord);
             _update(word);
@@ -59,23 +62,23 @@ namespace VocabT
         {
             if (string.IsNullOrWhiteSpace(originalWord))
             {
-                MessageBox.Show("The 'English word' field can't be empty");
+                ShowWarning("The 'English word' field can't be empty");
                 return false;
             }
-            if (!Regex.IsMatch(originalWord, "^[a-zA-Z]*$"))
+            if (!Regex.IsMatch(originalWord, "^[a-zA-Z- ]*$"))
             {
-                MessageBox.Show("The 'English word' field must have only english characters");
+                ShowWarning("The 'English word' field must have only english characters");
                 return false;
             }
 
             if (translationWords.Length < 1)
             {
-                MessageBox.Show("The 'Translation words' field must have one or more non empty words");
+                ShowWarning("The 'Translation words' field must have one or more non empty words");
                 return false;
             }
-            if (!translationWords.All(x => Regex.IsMatch(x, "^[а-яА-Я]*$")))
+            if (!translationWords.All(x => Regex.IsMatch(x, "^[а-яА-Я- ё]*$")))
             {
-                MessageBox.Show("The 'Translation words' field must have only russian characters");
+                ShowWarning("The 'Translation words' field must have only russian characters");
                 return false;
             }
 
@@ -120,6 +123,26 @@ namespace VocabT
         private void ContentControl_LostFocus(object sender, RoutedEventArgs e)
         {
             HintTextBox.IsEnabled = false;
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            originalWordTextBox.Focus();
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            if (!_isWarningOpened)
+            {
+                Hide();
+            }
+        }
+
+        private void ShowWarning(string msg)
+        {
+            _isWarningOpened = true;
+            MessageBox.Show(msg);
+            _isWarningOpened = false;
         }
     }
 }

@@ -7,9 +7,9 @@ namespace VocabT
 {
     public static class WordExtensions
     {
-        public static readonly double DefaultEstimation = 0.8;
+        public static readonly float DefaultEstimation = 0.2f;
 
-        public static double CalculateEstimation(this Word word)
+        public static float CalculateEstimation(this Word word)
         {
             var c = word.Count;
             var m = word.MistakesCount;
@@ -20,14 +20,15 @@ namespace VocabT
                 return DefaultEstimation;
             }
 
-            return seq switch
-            {
-                _ when seq >= 0 => m / (c * Math.Pow(2, seq)),
-                _ => m / c + 1 - (c - m) * Math.Pow(2, seq) / c
-            };
+            var mc = (float) m / (m + c);
+            var pivot = MathF.Max(mc, DefaultEstimation);
+            var range = seq >= 0 ? pivot : 1 - pivot;
+            var shift = range * (1 - 1 / MathF.Pow(2f, MathF.Abs(seq)));
+
+            return pivot + (seq >= 0 ? -1 : 1) * shift;
         }
 
-        public static Dictionary<Word, double> GetProbabilities(this Dictionary<Word, double> estimates)
+        public static Dictionary<Word, float> GetProbabilities(this Dictionary<Word, float> estimates)
         {
             var estimationSum = estimates.Values.Sum();
             return estimates
