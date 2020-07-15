@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using HtmlAgilityPack;
+using NAudio.Wave;
 
 namespace VocabT
 {
@@ -22,6 +26,7 @@ namespace VocabT
     {
         private static readonly Random rand = new Random();
 
+        private ConcurrentDictionary<string, MediaFoundationReader> _audioUrls = new ConcurrentDictionary<string, MediaFoundationReader>();
         private Word _currentWord;
 
         private string _questionWord;
@@ -51,6 +56,8 @@ namespace VocabT
             if (words.Count == 0)
                 return result;
 
+            Task.Run(() => PrepareAudio(words));
+
             foreach (var word in words)
             {
                 _currentWord = word;
@@ -68,6 +75,7 @@ namespace VocabT
                     _answerWords = new List<string>(new []{word.Eng});
                 }
 
+                AudioBtn.Visibility = Visibility.Hidden;
                 QuestionWordLbl.Content = _questionWord;
                 AnswerWordTextBox.Text = string.Empty;
                 AnswerWordTextBox.Focus();
@@ -75,7 +83,7 @@ namespace VocabT
                 DataContext = null;
                 comboBox.Visibility = Visibility.Hidden;
                 HintPopupTextBlock.Text = hint;
-                image.Visibility = hint.IsNullOrEmpty() ? Visibility.Hidden : Visibility.Visible;
+                HintBtn.Visibility = hint.IsNullOrEmpty() ? Visibility.Hidden : Visibility.Visible;
                 _isAnswered = false;
 
                 while (!_isAnswered)
@@ -100,6 +108,8 @@ namespace VocabT
                     }
                 }
 
+                AudioBtn.Visibility = Visibility.Visible;
+                AudioBtn_MouseLeftButtonUp(null, null);
                 _isNext = false;
                 DataContext = new ComboBoxListItem
                 {
@@ -133,6 +143,26 @@ namespace VocabT
             }
 
             return result;
+        }
+
+        private void PrepareAudio(IEnumerable<Word> words)
+        {
+            words.AsParallel().ForAll(x =>
+            {
+                using var client = new WebClient();
+
+                var url = $"https://www.vocabulary.com/dictionary/{x.Eng}";
+                var html = client.DownloadString(url);
+                var pageDocument = new HtmlDocument();
+                pageDocument.LoadHtml(html);
+
+                var audioNode = pageDocument.DocumentNode.SelectSingleNode("(//a[@class='audio'])");
+                var data = audioNode.GetAttributeValue("data-audio", null);
+
+                var mp3Url = $"https://audio.vocab.com/1.0/us/{data}.mp3";
+                var mf = new MediaFoundationReader(mp3Url);
+                _audioUrls[x.Eng] = mf;
+            });
         }
 
         private async void CheckWordBtn_Click(object sender, RoutedEventArgs e)
@@ -183,6 +213,11 @@ namespace VocabT
             {
                 CheckWordBtn_Click(null, null);
             }
+
+            if (e.Key == Key.LeftShift && AudioBtn.Visibility != Visibility.Hidden)
+            {
+                AudioBtn_MouseLeftButtonUp(null, null);
+            }
         }
 
         private void image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -192,12 +227,12 @@ namespace VocabT
 
         private void image_MouseEnter(object sender, MouseEventArgs e)
         {
-            image.Opacity = 1;
+            ((Image)sender).Opacity = 1;
         }
 
         private void image_MouseLeave(object sender, MouseEventArgs e)
         {
-            image.Opacity = 0.7;
+            ((Image)sender).Opacity = 0.7;
         }
 
         private void comboBox_DropDownOpened(object sender, EventArgs e)
@@ -205,6 +240,22 @@ namespace VocabT
             if (_answerWords.Count <= 1)
             {
                 ((ComboBox) sender).IsDropDownOpen = false;
+            }
+        }
+
+        private async void AudioBtn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            while (!_audioUrls.ContainsKey(_currentWord.Eng))
+            {
+                await Task.Delay(10);
+            }
+            await using var mf = _audioUrls[_currentWord.Eng];
+            using var wo = new WaveOutEvent();
+            wo.Init(mf);
+            wo.Play();
+            while (wo.PlaybackState == PlaybackState.Playing)
+            {
+                await Task.Delay(100);
             }
         }
     }

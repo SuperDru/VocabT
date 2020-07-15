@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VocabT
+﻿namespace VocabT
 {
     public static class Sql
     {
-        public const string SelectWords = "SELECT * FROM words";
-        public const string SelectWordsWithStatus = "SELECT * FROM words where status=@status";
+        public const string SelectWords = "SELECT * FROM words ORDER BY count DESC";
+        public const string SelectWordsWithStatus = "SELECT * FROM words where status=@status ORDER BY count DESC";
         public const string SelectWordWithEng = "SELECT * FROM words WHERE eng=@eng";
         public const string SelectWordsWithTranslations = "SELECT * FROM words WHERE rus && @translations::varchar[]";
 

@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VocabT"
         mc:Ignorable="d"
         Title="LearningProcessWindow" Height="124.49" Width="361.702" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="Manual">
     <Grid>
@@ -30,7 +29,8 @@
                     <TextBlock x:Name="HintPopupTextBlock" TextWrapping="Wrap" Width="180" FontSize="14" Background="#FF35405D"/>
                 </Border>
             </Popup>
-            <Image x:Name="image" Opacity="0.7" Source="../excl_ico.png" Height="22" Canvas.Left="318" Canvas.Top="56" Width="28" MouseLeftButtonUp="image_MouseLeftButtonUp" MouseEnter="image_MouseEnter" MouseLeave="image_MouseLeave"/>
+            <Image x:Name="HintBtn" Opacity="0.7" Source="../excl_ico.png" Height="22" Canvas.Left="318" Canvas.Top="56" Width="28" MouseLeftButtonUp="image_MouseLeftButtonUp" MouseEnter="image_MouseEnter" MouseLeave="image_MouseLeave"/>
+            <Image x:Name="AudioBtn" Opacity="0.7" Source="../audio.png" Height="22" Canvas.Left="124" Canvas.Top="26" Width="28" MouseEnter="image_MouseEnter" MouseLeave="image_MouseLeave" MouseLeftButtonUp="AudioBtn_MouseLeftButtonUp"/>
         </Canvas>
     </Grid>
 </Window>

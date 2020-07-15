@@ -8,17 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="audio.png" />
     <None Remove="excl_ico.png" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.35" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Npgsql" Version="4.1.3.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="audio.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="excl_ico.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
