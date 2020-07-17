@@ -38,6 +38,12 @@ namespace VocabT
 
             _icon.ContextMenuStrip = menuContext;
             _icon.Visible = true;
+
+            _icon.Click += (_, __) =>
+            {
+                _newWordWindow.Show();
+                _newWordWindow.Focus();
+            };
         }
 
         private void OnTrayItemClick(object sender, EventArgs e)

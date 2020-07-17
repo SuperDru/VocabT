@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VocabT"
         mc:Ignorable="d"
-        Title="NewWordWindow" Height="257" Width="390" Background="#FF1B1B23" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" ShowInTaskbar="False" Closing="Window_Closing" Activated="Window_Activated" Deactivated="Window_Deactivated">
+        Title="NewWordWindow" Height="257" Width="390" Background="#FF1B1B23" WindowStartupLocation="Manual" ResizeMode="NoResize" ShowInTaskbar="False" Closing="Window_Closing" Activated="Window_Activated" Deactivated="Window_Deactivated">
     <Grid x:Name="grid" Margin="0,0,0,-6">
         <TextBox x:Name="originalWordTextBox" TextWrapping="Wrap" FontSize="18" Background="#FF35405D" Margin="10,34,10,0" Height="26" VerticalAlignment="Top" KeyUp="originalWordTextBox_KeyUp"/>
         <Label x:Name="originalWordLabel" Content="English word" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Top" FontSize="18" FontWeight="Normal" Foreground="White"/>
